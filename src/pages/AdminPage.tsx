@@ -78,16 +78,19 @@ export function AdminPage() {
   const cancelEdit = () => {
     setEditingId(null);
     setForm(blankForm);
-    setNotice('');
+    setNotice('Edición cancelada.');
   };
 
   return (
     <main className="container py-5 flex-grow-1">
-      <header className="mb-4">
-        <p className="eyebrow mb-2">GESTIÓN DE FLOTA</p>
-        <h1 className="h2">
-          {isAdmin ? 'Panel de Administración' : 'Panel de Vendedor'}
-        </h1>
+      <header className="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <p className="eyebrow mb-2">GESTIÓN DE FLOTA</p>
+          <h1 className="h2 mb-0">
+            {isAdmin ? 'Panel de control' : 'Panel de Vendedor'}
+          </h1>
+        </div>
+        <span className="badge text-bg-secondary">{fleet.length} vehículos</span>
       </header>
 
       {!isAdmin && (

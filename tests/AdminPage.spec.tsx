@@ -1,10 +1,18 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { AuthProvider } from '../src/context/AuthContext';
 import { FleetProvider } from '../src/context/FleetContext';
 import { AdminPage } from '../src/pages/AdminPage';
 
 function renderAdmin() {
-  return render(<FleetProvider><AdminPage /></FleetProvider>);
+  localStorage.setItem('rol_usuario', 'admin');
+  return render(
+    <AuthProvider>
+      <FleetProvider>
+        <AdminPage />
+      </FleetProvider>
+    </AuthProvider>
+  );
 }
 
 describe('AdminPage', () => {
