@@ -4,7 +4,7 @@ import { AdminFleetTable, AdminVehicleForm } from '../components/admin/AdminFlee
 import { validateVehicleInput } from '../data/vehicles';
 import { useAuth } from '../hooks/useAuth';
 import { useFleet } from '../hooks/useFleet';
-import type { Vehicle } from '../types';
+import type { RentalOrder, Vehicle } from '../types';
 
 const blankForm = {
   marca: '',
@@ -16,6 +16,28 @@ const blankForm = {
 };
 type VehicleForm = Omit<Vehicle, 'id'>;
 
+function readOrders(): RentalOrder[] {
+  try {
+    return JSON.parse(localStorage.getItem('bgs_ordenes') || '[]') as RentalOrder[];
+  } catch {
+    return [];
+  }
+}
+
+function formatOrderItems(items: RentalOrder['items']) {
+  return items
+    .map((item) => {
+      const rec = item as unknown as Record<string, unknown>;
+      const nested = rec.vehicle as Record<string, unknown> | undefined;
+      const marca = (rec.marca ?? nested?.marca ?? '') as string;
+      const modelo = (rec.modelo ?? nested?.modelo ?? '') as string;
+      const days = (rec.days ?? rec.dias ?? rec.cantidad ?? 1) as number;
+      const label = `${marca} ${modelo}`.trim() || 'Vehículo';
+      return `${label} (${days}d)`;
+    })
+    .join(', ');
+}
+
 export function AdminPage() {
   const { fleet, addVehicle, updateVehicle, removeVehicle } = useFleet();
   const { role } = useAuth();
@@ -24,6 +46,7 @@ export function AdminPage() {
   const [form, setForm] = useState<VehicleForm>(blankForm);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [notice, setNotice] = useState('');
+  const [orders] = useState<RentalOrder[]>(readOrders);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -121,6 +144,50 @@ export function AdminPage() {
           onDelete={isAdmin ? deleteVehicle : () => {}}
         />
       </div>
+
+      <section className="mt-5">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h2 className="h4 mb-0">Órdenes registradas</h2>
+          <span className="badge text-bg-dark">{orders.length} órdenes</span>
+        </div>
+        {orders.length === 0 ? (
+          <p className="text-white-50 mb-0">Aún no hay órdenes registradas.</p>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-dark table-striped align-middle">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Cliente</th>
+                  <th>Detalle</th>
+                  <th>Entrega</th>
+                  <th>Total</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.code}>
+                    <td>{order.code}</td>
+                    <td>
+                      {order.customer.name} {order.customer.surname}
+                      <div className="small text-white-50">{order.customer.email}</div>
+                    </td>
+                    <td>{formatOrderItems(order.items)}</td>
+                    <td>
+                      {order.delivery.method === 'pickup' ? 'Retiro' : 'Despacho'} ({order.delivery.branch})
+                    </td>
+                    <td>${order.total.toLocaleString('es-CL')}</td>
+                    <td>
+                      <span className="badge text-bg-success">Aprobada</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </main>
   );
 }
