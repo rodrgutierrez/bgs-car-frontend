@@ -23,4 +23,13 @@ export interface RentalOrder {
   status: 'approved' | 'rejected';
 }
 
-export type UserRole = 'cliente' | 'admin' | null;
+export type UserRole = 'cliente' | 'vendedor' | 'admin' | null;
+
+export interface AuthResponse {
+  token: string;
+  nombre: string;
+  apellido: string;
+  correo: string;
+  role: Exclude<UserRole, null>;
+}
+export type DeliveryDetails = RentalOrder['delivery'];
