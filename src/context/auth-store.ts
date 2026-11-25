@@ -6,8 +6,9 @@ export interface AuthContextValue {
   surname: string;
   email: string;
   role: UserRole;
-  signIn: (name: string, surname: string, email: string, role: Exclude<UserRole, null>) => void;
-  signOut: () => void;
+  token: string | null;
+  signIn: (name: string, surname: string, email: string, role: Exclude<UserRole, null>, token?: string) => void;
+signOut: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
