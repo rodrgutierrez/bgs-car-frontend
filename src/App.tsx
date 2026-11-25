@@ -22,7 +22,7 @@ import { VehicleDetailPage } from './pages/VehicleDetailPage';
 
 function AdminRoute() {
   const { role } = useAuth();
-  return role === 'admin' ? <AdminPage /> : <Navigate to="/login" replace />;
+  return role === 'admin' || role === 'vendedor' ? <AdminPage /> : <Navigate to="/login" replace />;
 }
 
 function AppRoutes() {
